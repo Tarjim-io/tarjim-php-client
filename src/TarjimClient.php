@@ -156,4 +156,39 @@ class TarjimClient extends Tarjim {
     
 		$this->writeToFile($this->update_cache_log_file, 'cache refreshed on '.date('Y-m-d H:i:s').PHP_EOL, FILE_APPEND);
 	}
+
+	/**
+	 * Upload image to tarjim.io
+	 */
+	public function uploadImage($key, $image_file, $namespace = '', $language = '') {
+		return $this->TarjimApiCaller->uploadImage($key, $image_file, $namespace, $language);
+	}
+	
+	/**
+	 *
+	 */
+	public function softDeleteKeys($keys, $namespace = '') {
+		return $this->TarjimApiCaller->softDeleteKeys($namespace, $keys);
+	}
+
+	/**
+	 *
+	 */
+	public function addKey($data, $namespace = '') {
+		return $this->TarjimApiCaller->upsert($data, $namespace);	
+	}
+
+	/**
+	 *
+	 */
+	public function updateKey($data, $namespace = '') {
+		return $this->TarjimApiCaller->upsert($data, $namespace);	
+	}
+
+	/**
+	 *
+	 */
+	public function searchByKey($key, $namespace) {
+		return $this->TarjimApiCaller->searchByKey($key, $namespace);
+	}
 }

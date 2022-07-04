@@ -24,6 +24,7 @@ class Tarjim {
 		$this->additional_namespaces = $config['additional_namespaces'];
 		$this->cache_dir = $config['cache_dir'];
 		$this->logs_dir = $config['logs_dir'];
+		$this->get_latest_from_tarjim_timeout = $config['get_latest_from_tarjim_timeout'];
 		
 		if (empty($this->additional_namespaces) || !is_array($this->additional_namespaces)) {
 			$this->additional_namespaces = [];
@@ -79,6 +80,14 @@ class Tarjim {
 			die('additional_namespaces must be an array');
 		}
 
+		$get_latest_from_tarjim_timeout = 30;
+		if (isset($update_cache_timeout)) {
+			if(!is_numeric($update_cache_timeout)) {
+				die('update_cache_timeout must be numeric');
+			}
+			$get_latest_from_tarjim_timeout = $update_cache_timeout;
+		}
+
 		return [
 			'project_id' => $project_id,
 			'apikey' => $apikey,
@@ -86,6 +95,7 @@ class Tarjim {
 			'cache_dir' => $cache_dir,
 			'logs_dir' => $logs_dir,
 			'additional_namespaces' => isset($additional_namespaces) ? $additional_namespaces : [],
+			'get_latest_from_tarjim_timeout' => $get_latest_from_tarjim_timeout,
 		];
 	}
 
@@ -141,7 +151,7 @@ class Tarjim {
 	/**
 	 *
 	 */
-	public function doCurlCall($endpoint, $method = null, $data = []) {
+	public function doCurlCall($endpoint, $method = null, $data = [], $timeout = 10) {
 		$api_endpoint = $this->tarjim_base_url.'/'.$endpoint;
 		
 		$ch = curl_init();
@@ -164,7 +174,7 @@ class Tarjim {
 
 		curl_setopt($ch, CURLOPT_URL, $api_endpoint);
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-		curl_setopt($ch, CURLOPT_TIMEOUT, 60);
+		curl_setopt($ch, CURLOPT_TIMEOUT, $timeout);
 		curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
 		$response = curl_exec($ch);
 

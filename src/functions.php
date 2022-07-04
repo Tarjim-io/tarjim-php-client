@@ -19,111 +19,116 @@ function tarjimErrorHandler($errno, $errstr, $errfile, $errline) {
  */
 ///////////////////////////////
 function _T($key, $config = [], $debug = false) {
-  ## Sanity
-  if (empty($key)) {
-    return;
-  }
+	## Sanity
+	if (empty($key)) {
+		return;
+	}
+
+	if (isset($config['SEO']) && $config['SEO']) {
+    return _TSEO($key, $config);
+	}
 
 
-  set_error_handler('tarjimErrorHandler');
+	set_error_handler('tarjimErrorHandler');
 
-  ## Check for mappings
-  if (isset($config['mappings'])) {
-    $mappings = $config['mappings'];
-  }
-  
-  $namespace = '';
-  if (isset($config['namespace'])) {
-    $namespace = $config['namespace'];
-  }
+	## Check for mappings
+	if (isset($config['mappings'])) {
+		$mappings = $config['mappings'];
+	}
+
+	$namespace = '';
+	if (isset($config['namespace'])) {
+		$namespace = $config['namespace'];
+	}
 
 
-  $result = getTarjimValue($key, $namespace);
-  $value = $result['value'];
-  $assign_tarjim_id = $result['assign_tarjim_id'];
-  $tarjim_id = $result['tarjim_id'];
-  $full_value = $result['full_value'];
+	$result = getTarjimValue($key, $namespace);
+	$value = $result['value'];
+	$assign_tarjim_id = $result['assign_tarjim_id'];
+	$tarjim_id = $result['tarjim_id'];
+	$full_value = $result['full_value'];
 
-  ## Check config keys and skip assigning tid and wrapping in a span for certain keys
-  # ex: page title, input placeholders, image hrefs...
-  if (
-    (isset($config['is_page_title']) || in_array('is_page_title', $config)) ||
-    (isset($config['skip_assign_tid']) || in_array('skip_assign_tid', $config)) ||
-    (isset($config['skip_tid']) || in_array('skip_tid', $config)) ||
-    (isset($full_value['skip_tid']) && $full_value['skip_tid'])
-  ) {
-    $assign_tarjim_id = false;
-  }
+	## Check config keys and skip assigning tid and wrapping in a span for certain keys
+	# ex: page title, input placeholders, image hrefs...
+	if (
+		(isset($config['is_page_title']) || in_array('is_page_title', $config)) ||
+		(isset($config['skip_assign_tid']) || in_array('skip_assign_tid', $config)) ||
+		(isset($config['skip_tid']) || in_array('skip_tid', $config)) ||
+		(isset($full_value['skip_tid']) && $full_value['skip_tid'])
+	) {
+		$assign_tarjim_id = false;
+	}
 
-  ## Debug mode
-  if (!empty($debug)) {
-    echo $mode ."\n";
-    echo $key . "\n" .$value;
-  }
+	## Debug mode
+	if (!empty($debug)) {
+		echo $mode ."\n";
+		echo $key . "\n" .$value;
+	}
 
-  if (isset($config['do_addslashes']) && $config['do_addslashes']) {
-    $result = addslashes($value);
-  }
 
-  if (isset($mappings)) {
-    $value = injectValuesIntoTranslation($value, $mappings);
-  }
+	if (isset($config['do_addslashes']) && $config['do_addslashes']) {
+		$result = addslashes($value);
+	}
 
-  $sanitized_value = sanitizeResult($key, $value);
+	$sanitized_value = sanitizeResult($key, $value);
 
-  ## Restore default error handler
-  restore_error_handler();
+	if (isset($mappings)) {
+		$sanitized_value = injectValuesIntoTranslation($sanitized_value, $mappings);
+	}
 
-  if ($assign_tarjim_id) {
-    $final_value = assignTarjimId($tarjim_id, $sanitized_value);
-    return $final_value;
-  }
-  else {
-    return strip_tags($sanitized_value);
-  }
+	## Restore default error handler
+	restore_error_handler();
+
+	if ($assign_tarjim_id) {
+		$final_value = assignTarjimId($tarjim_id, $sanitized_value);
+		return $final_value;
+	}
+	else {
+		return strip_tags($sanitized_value);
+	}
 }
 
 /**
  * return dataset with all languages for key
  */
 function _TD($key, $config = []) {
-  global $_T;
-  $namespace = $_T['meta']['default_namespace'];
+	global $_T;
+	$namespace = $_T['meta']['default_namespace'];
 
-  if (isset($config['namespace'])) {
-    $namespace = $config['namespace'];
-  }
+	if (isset($config['namespace'])) {
+		$namespace = $config['namespace'];
+	}
 
-  $dataset = [];
-  $original_key = $key;
-  $key = strtolower($key);
+	$dataset = [];
+	$original_key = $key;
+	$key = strtolower($key);
 
-  $translations = $_T['results'];	
-  if ('all_namespaces' == $namespace) {
-    foreach ($translations as $namespace => $namespace_translations) {
-      if ('meta' == $namespace) {
-        continue;
-      };
-      foreach ($namespace_translations as $language => $language_translations) {
-        $dataset[$namespace][$language] = '';
-        if (isset($language_translations[$key])) {
-          $sanitized_value = sanitizeResult($key, $language_translations[$key]['value']);
-          $dataset[$namespace][$language] = $sanitized_value;
-        }
-      }
-    }
-  }
-  else {
-    $namespace_translations = $translations[$namespace];
-    foreach ($namespace_translations as $language => $language_translations) {
-      $dataset[$language] = '';
-      if (isset($language_translations[$key])) {
-        $sanitized_value = sanitizeResult($key, $language_translations[$key]['value']);
-        $dataset[$language] = $sanitized_value;
-      }
-    }
-  }
-  return $dataset;
+	$translations = $_T['results'];
+	if ('all_namespaces' == $namespace) {
+		foreach ($translations as $namespace => $namespace_translations) {
+			if ('meta' == $namespace) {
+				continue;
+			};
+			foreach ($namespace_translations as $language => $language_translations) {
+				$dataset[$namespace][$language] = '';
+				if (isset($language_translations[$key])) {
+					$sanitized_value = sanitizeResult($key, $language_translations[$key]['value']);
+					$dataset[$namespace][$language] = $sanitized_value;
+				}
+			}
+		}
+	}
+	else {
+		$namespace_translations = $translations[$namespace];
+		foreach ($namespace_translations as $language => $language_translations) {
+			$dataset[$language] = '';
+			if (isset($language_translations[$key])) {
+				$sanitized_value = sanitizeResult($key, $language_translations[$key]['value']);
+				$dataset[$language] = $sanitized_value;
+			}
+		}
+	}
+	return $dataset;
 }
 
 /**
@@ -132,15 +137,15 @@ function _TD($key, $config = []) {
  * used with images, placeholders, title, select/dropdown
  */
 function _TS($key, $config = []) {
-  $config['skip_tid'] = true;
-  return _T($key, $config);
+	$config['skip_tid'] = true;
+	return _T($key, $config);
 }
 
 /**
  * Alias for _TM()
  */
 function _TI($key, $attributes) {
-  return _TM($key, $attributes);
+	return _TM($key, $attributes);
 }
 
 /**
@@ -150,40 +155,155 @@ function _TI($key, $attributes) {
  * If received key doesn't have type:image return _T($key) instead
  */
 function _TM($key, $attributes=[]) {
-  ## Sanity
+	## Sanity
+	if (empty($key)) {
+		return;
+	}
+
+	set_error_handler('tarjimErrorHandler');
+
+	$namespace = '';
+	if (isset($attributes['namespace'])) {
+		$namespace = $attributes['namespace'];
+		unset($attributes['namespace']);
+	}
+
+	$result = getTarjimValue($key, $namespace);
+	$value = $result['value'];
+	$tarjim_id = $result['tarjim_id'];
+	$full_value = $result['full_value'];
+
+	$attributes_from_remote = [];
+	$sanitized_value = sanitizeResult($key, $value);
+	$final_value = 'src='.$sanitized_value.' data-tid='.$tarjim_id;
+
+	if (array_key_exists('attributes', $full_value)) {
+		$attributes_from_remote = $full_value['attributes'];
+	}
+
+	## Merge attributes from tarjim.io and those received from view
+	# for attributes that exist in both arrays take the value from tarjim.io
+	$attributes = array_merge($attributes, $attributes_from_remote);
+	if (!empty($attributes)) {
+		foreach ($attributes as $attribute => $attribute_value) {
+			$final_value .= ' ' .$attribute . '="' . $attribute_value .'"';
+		}
+	}
+
+	## Restore default error handler
+	restore_error_handler();
+	return $final_value;
+}
+
+/**
+ * Used for meta tags and site description
+ **/
+function _TSEO($key, $config = []) {
+
   if (empty($key)) {
     return;
   }
 
-  set_error_handler('tarjimErrorHandler');
-  
-  $namespace = '';
-  if (isset($attributes['namespace'])) {
-    $namespace = $attributes['namespace'];
-    unset($attributes['namespace']);
+	if (!isset($config['SEO']) || empty($config['SEO'])) {
+    return $key;
+	}
+  switch ($config['SEO']) {
+  case "page_title":
+    return _TTT($key);
+  case "open_graph":
+    return _TMT($key);
+  case "twitter_card":
+    return _TMT($key);
+  case "page_description":
+    return _TMT($key);
+    break;
+  default:
+    return $key;
   }
-  
-  $result = getTarjimValue($key, $namespace);
+
+}
+
+/**
+ * Used for meta tags like twitter card and Open Graph
+ * @param String $key key for media
+ */
+function _TMT($key) {
+  ## Sanity
+  if (empty($key)) {
+    return;
+  }
+  set_error_handler('tarjimErrorHandler');
+
+  $result = getTarjimValue($key);
   $value = $result['value'];
+  /**
   $tarjim_id = $result['tarjim_id'];
   $full_value = $result['full_value'];
+   */
 
-  $attributes_from_remote = [];
   $sanitized_value = sanitizeResult($key, $value);
-  $final_value = 'src='.$sanitized_value.' data-tid='.$tarjim_id;
+  $final_value = '';
 
-  if (array_key_exists('attributes', $full_value)) {
-    $attributes_from_remote = $full_value['attributes'];
-  }
-
-  ## Merge attributes from tarjim.io and those received from view
-  # for attributes that exist in both arrays take the value from tarjim.io
-  $attributes = array_merge($attributes, $attributes_from_remote);
-  if (!empty($attributes)) {
-    foreach ($attributes as $attribute => $attribute_value) {
-      $final_value .= ' ' .$attribute . '="' . $attribute_value .'"';
+  if (json_decode($sanitized_value)) {
+    $sanitized_value = json_decode($sanitized_value);
+    foreach($sanitized_value as $property => $content ) {
+      if (!empty($content)) {
+        $final_value .= '<meta property="'.$property.'" content="'.$content.'" />';
+      }
     }
   }
+
+  ## Restore default error handler
+  restore_error_handler();
+  return $final_value;
+}
+
+/**
+ * Used for title tags like twitter card and Open Graph
+ * @param String $key key for media
+ */
+function _TTT($key) {
+  ## Sanity
+  if (empty($key)) {
+    return;
+  }
+  set_error_handler('tarjimErrorHandler');
+
+  $result = getTarjimValue($key);
+  $value = $result['value'];
+  /**
+  $tarjim_id = $result['tarjim_id'];
+  $full_value = $result['full_value'];
+   */
+
+  $sanitized_value = sanitizeResult($key, $value);
+  $final_value .= '<title>'.$sanitized_value.'</title>';
+
+  ## Restore default error handler
+  restore_error_handler();
+  return $final_value;
+}
+
+/**
+ * Used for description meta tags like twitter card and Open Graph
+ * @param String $key key for media
+ */
+function _TMD($key) {
+  ## Sanity
+  if (empty($key)) {
+    return;
+  }
+  set_error_handler('tarjimErrorHandler');
+
+  $result = getTarjimValue($key);
+  $value = $result['value'];
+  /**
+  $tarjim_id = $result['tarjim_id'];
+  $full_value = $result['full_value'];
+   */
+
+  $sanitized_value = sanitizeResult($key, $value);
+  $final_value .= '<meta name="description" content="'.$sanitized_value.'">';
 
   ## Restore default error handler
   restore_error_handler();
@@ -199,64 +319,64 @@ function _TM($key, $attributes=[]) {
  * full_value => full object for from $_T to retreive extra attributes if needed
  */
 function getTarjimValue($key, $namespace = '') {
-  set_error_handler('tarjimErrorHandler');
-  global $_T;
-    
-  if (empty($namespace)) {
-    $namespace = $_T['meta']['default_namespace'];
-  }
+	set_error_handler('tarjimErrorHandler');
+	global $_T;
 
-  $active_language = $_T['meta']['active_language'];
-  $original_key = $key;
-  $key = strtolower($key);
-  $assign_tarjim_id = false;
-  $tarjim_id = '';
-  $full_value = [];
-  $translations = $_T['results'];
+	if (empty($namespace)) {
+		$namespace = $_T['meta']['default_namespace'];
+	}
 
-  ## Direct match
-  if (isset($translations[$namespace][$active_language][$key]) && !empty($translations[$namespace][$active_language][$key])) {
-    $mode = 'direct';
-    if (is_array($translations[$namespace][$active_language][$key])) {
-      if (!empty($translations[$namespace][$active_language][$key]['value'])) {
-        $value = $translations[$namespace][$active_language][$key]['value'];
-      }
-      else {
-        $mode = 'empty_value_fallback';
-        $value = $original_key;
-      }
-      $tarjim_id = $translations[$namespace][$active_language][$key]['id'];
-      $assign_tarjim_id = true;
-      $full_value = $translations[$namespace][$active_language][$key];
-    }
-    else {
-      $value = $translations[$namespace][$active_language][$key];
-    }
-  }
+	$active_language = $_T['meta']['active_language'];
+	$original_key = $key;
+	$key = strtolower($key);
+	$assign_tarjim_id = false;
+	$tarjim_id = '';
+	$full_value = [];
+	$translations = $_T['results'];
 
-  ## Fallback key
-  if (isset($translations[$namespace][$active_language][$key]) && empty($translations[$namespace][$active_language][$key])) {
-    $mode = 'key_fallback';
-    $value = $original_key;
-  }
+	## Direct match
+	if (isset($translations[$namespace][$active_language][$key]) && !empty($translations[$namespace][$active_language][$key])) {
+		$mode = 'direct';
+		if (is_array($translations[$namespace][$active_language][$key])) {
+			if (!empty($translations[$namespace][$active_language][$key]['value'])) {
+				$value = $translations[$namespace][$active_language][$key]['value'];
+			}
+			else {
+				$mode = 'empty_value_fallback';
+				$value = $original_key;
+			}
+			$tarjim_id = $translations[$namespace][$active_language][$key]['id'];
+			$assign_tarjim_id = true;
+			$full_value = $translations[$namespace][$active_language][$key];
+		}
+		else {
+			$value = $translations[$namespace][$active_language][$key];
+		}
+	}
 
-  ## Empty fall back (return key)
-  if (!isset($translations[$namespace][$active_language][$key])) {
-    $mode = 'empty_key_fallback';
-    $value = $original_key;
-  }
+	## Fallback key
+	if (isset($translations[$namespace][$active_language][$key]) && empty($translations[$namespace][$active_language][$key])) {
+		$mode = 'key_fallback';
+		$value = $original_key;
+	}
 
-  $result = [
-    'value' => $value,
-    'tarjim_id' => $tarjim_id,
-    'assign_tarjim_id' => $assign_tarjim_id,
-    'full_value' => $full_value,
-  ];
+	## Empty fall back (return key)
+	if (!isset($translations[$namespace][$active_language][$key])) {
+		$mode = 'empty_key_fallback';
+		$value = $original_key;
+	}
 
-  ## Restore default error handler
-  restore_error_handler();
+	$result = [
+		'value' => $value,
+		'tarjim_id' => $tarjim_id,
+		'assign_tarjim_id' => $assign_tarjim_id,
+		'full_value' => $full_value,
+	];
 
-  return $result;
+	## Restore default error handler
+	restore_error_handler();
+
+	return $result;
 }
 
 /**
