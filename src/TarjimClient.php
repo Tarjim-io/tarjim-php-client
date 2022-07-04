@@ -52,12 +52,13 @@ class TarjimClient extends Tarjim {
 		set_error_handler('tarjimErrorHandler');
 
 		if (!file_exists($this->cache_file) || !filesize($this->cache_file) || is_null(file_get_contents($this->cache_file))) {
-			$apiData = $this->TarjimApiCaller->getLatestFromTarjim();
-			if ('fail' == $apiData) {
+			$final = $this->TarjimApiCaller->getLatestFromTarjim();
+			if ('fail' == $final['status']) {
 				restore_error_handler();
 				die('failed to get data from tarjim api check error logs for more details');
 			}
-			$this->updateCache($final['result']);
+			$final = $final['result'];
+			$this->updateCache($final);
 		}
 		else {
 			$ttl_in_minutes = 15;
