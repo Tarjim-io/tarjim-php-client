@@ -6,6 +6,7 @@ use Joylab\TarjimPhpClient\TarjimClient;
  * Tarjim error handler
  */
 function tarjimErrorHandler($errno, $errstr, $errfile, $errline) {
+  global $_T;
   $Tarjim = new TarjimClient($_T['meta']['config_file_path']);
   $Tarjim->writeToFile($Tarjim->errors_file, date('Y-m-d H:i:s').' Tarjim client error file '.$errfile.' (line '.$errline.'): '.$errstr.PHP_EOL, FILE_APPEND);
 }
