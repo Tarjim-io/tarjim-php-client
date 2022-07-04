@@ -1,6 +1,6 @@
 <?php
 
-use Merhie\TarjimClientPhpGithubTmp\TarjimClient;
+use Joylab\TarjimPhpClient\TarjimClient;
 
 /**
  * Tarjim error handler

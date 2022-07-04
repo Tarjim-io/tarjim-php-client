@@ -1,6 +1,6 @@
 <?php
 
-namespace Merhie\TarjimClientPhpGithubTmp;
+namespace Joylab\TarjimPhpClient; 
 
 class TarjimApiCaller extends Tarjim {
 

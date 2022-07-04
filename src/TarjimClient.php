@@ -8,7 +8,7 @@
  * the _T() function definition
  *
  */
-namespace Merhie\TarjimClientPhpGithubTmp; 
+namespace Joylab\TarjimPhpClient; 
 require_once __DIR__.'/functions.php';
 
 class TarjimClient extends Tarjim {
