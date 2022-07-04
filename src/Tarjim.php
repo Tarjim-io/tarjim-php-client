@@ -52,7 +52,7 @@ class Tarjim {
 		$config_file_ext = pathinfo($config_file_path, PATHINFO_EXTENSION);
 
 		if ('php' == $config_file_ext) {
-			require_once($config_file_path);
+			require($config_file_path);
 		}
 		else if ('json' == $config_file_ext) {
 			$config_vars = json_decode(file_get_contents($config_file_path), true);
