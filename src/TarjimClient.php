@@ -33,6 +33,10 @@ class TarjimClient extends Tarjim {
 	 */
   public function setTranslations($language) {
 		global $_T;
+		$_T['meta'] = [
+			'default_namespace' => $this->default_namespace,
+			'config_file_path' => $this->config_file_path,
+		];
 
     ## Set translation keys
 		$_T = $this->getTranslations();
@@ -149,12 +153,14 @@ class TarjimClient extends Tarjim {
     $result = $this->TarjimApiCaller->getLatestFromTarjim();
 
 		if ('fail' == $result['status']) {
-			die('failed to get data from tarjim api check error logs for more details');
+			return $result;
 		}
 
 		$this->updateCache($result['result']);
     
 		$this->writeToFile($this->update_cache_log_file, 'cache refreshed on '.date('Y-m-d H:i:s').PHP_EOL, FILE_APPEND);
+
+		return ['status' => $result['status']];
 	}
 
 	/**
