@@ -6,16 +6,18 @@ namespace Joylab\TarjimPhpClient;
  */
 class Tarjim {
 
-//	public $apikey, $tarjim_base_url, $project_id, $default_namespace, $additional_namespaces, $cache_dir, $logs_dir, $namespaces, $cache_backup_file, $cache_file, $sanitized_html_cache_file, $errors_file, $update_cache_log_file;
-	
+	//	public $apikey, $tarjim_base_url, $project_id, $default_namespace, $additional_namespaces, $cache_dir, $logs_dir, $namespaces, $cache_backup_file, $cache_file, $sanitized_html_cache_file, $errors_file, $update_cache_log_file;
+
 	/**
 	 *
 	 */
 	public function __construct($config_file_path) {
 		global $_T;
-		$_T['meta'] = [
-			'config_file_path' => $config_file_path,
-		];
+		if (!isset($_T['meta'])) {
+			$_T['meta'] = [
+				'config_file_path' => $config_file_path,
+			];
+		}
 
 		$config = $this->validateConfigVars($config_file_path);
 
