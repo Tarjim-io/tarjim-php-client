@@ -17,7 +17,7 @@ class Tarjim {
 		
 		$this->config_file_path = $config_file_path;
 
-		$this->tarjim_base_url = 'https://app.tarjim.io';
+		$this->tarjim_base_url = $config['tarjim_base_url'];
 		$this->project_id = $config['project_id'];
 		$this->apikey = $config['apikey'];
 		$this->default_namespace = $config['default_namespace'];
@@ -88,7 +88,7 @@ class Tarjim {
 			$get_latest_from_tarjim_timeout = $update_cache_timeout;
 		}
 
-		return [
+		$config = [
 			'project_id' => $project_id,
 			'apikey' => $apikey,
 			'default_namespace' => $default_namespace,
@@ -97,6 +97,15 @@ class Tarjim {
 			'additional_namespaces' => isset($additional_namespaces) ? $additional_namespaces : [],
 			'get_latest_from_tarjim_timeout' => $get_latest_from_tarjim_timeout,
 		];
+
+		if (isset($tarjim_base_url)) {
+			$config['tarjim_base_url'] = $tarjim_base_url;
+		}
+		else {
+			$config['tarjim_base_url'] = 'https://app.tarjim.io';
+		}
+
+		return $config;
 	}
 
 	/**
@@ -151,7 +160,7 @@ class Tarjim {
 	/**
 	 *
 	 */
-	public function doCurlCall($endpoint, $method = null, $data = [], $timeout = 10) {
+	public function doCurlCall($endpoint, $method = null, $data = [], $timeout = null, $encode_post_params = true) {
 		$api_endpoint = $this->tarjim_base_url.'/'.$endpoint;
 		
 		$ch = curl_init();
@@ -159,7 +168,10 @@ class Tarjim {
 			$api_endpoint = $api_endpoint.'?'.http_build_query($data, '', '&');
 		}
 		else {
-			$data_encoded = json_encode($data);
+			$data_encoded = $data;
+			if ($encode_post_params) {
+				$data_encoded = json_encode($data);
+			}
 
 			if ('POST' == $method) {
 				curl_setopt($ch, CURLOPT_POST, true);
@@ -170,6 +182,10 @@ class Tarjim {
 
 			curl_setopt($ch, CURLOPT_POSTFIELDS, $data_encoded);
 			curl_setopt($ch, CURLOPT_POSTREDIR, 3);
+		}
+
+		if (empty($timeout)) {
+			$timeout = 10;
 		}
 
 		curl_setopt($ch, CURLOPT_URL, $api_endpoint);

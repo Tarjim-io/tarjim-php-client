@@ -70,7 +70,7 @@ class TarjimApiCaller extends Tarjim {
 			}
 		}
 
-		$result = $this->doCurlCall($endpoint, 'POST', $post_params); 
+		$result = $this->doCurlCall($endpoint, 'POST', $post_params, null, false); 
 		restore_error_handler();
 		return $result;
 	}
