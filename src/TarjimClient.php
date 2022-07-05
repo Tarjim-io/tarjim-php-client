@@ -188,7 +188,7 @@ class TarjimClient extends Tarjim {
 	/**
 	 *
 	 */
-	public function searchKeys($value, $namespace = '') {
-		return $this->TarjimApiCaller->searchKeys($key, $namespace);
+	public function searchKeys($search_keyword, $namespace = '') {
+		return $this->TarjimApiCaller->searchKeys($search_keyword, $namespace);
 	}
 }

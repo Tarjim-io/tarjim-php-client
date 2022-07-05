@@ -133,7 +133,7 @@ class TarjimApiCaller extends Tarjim {
 	/**
 	 *
 	 */
-	public function searchKeys($key, $namespace) {
+	public function searchKeys($search_keyword, $namespace) {
 		set_error_handler('tarjimErrorHandler');
 
 		$endpoint = '/api/v1/keys/search-for-keys';	
@@ -146,7 +146,7 @@ class TarjimApiCaller extends Tarjim {
 			'project_id' => $this->project_id,
 			'apikey' => $this->apikey,
 			'namespace' => $namespace,
-			'search_keyrd' => $key,
+			'search_keyword' => $search_keyword,
 		];
 
 		$result = $this->doCurlCall($endpoint, 'POST', $post_params);
