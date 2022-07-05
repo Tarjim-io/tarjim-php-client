@@ -12,6 +12,11 @@ class Tarjim {
 	 *
 	 */
 	public function __construct($config_file_path) {
+		global $_T;
+		$_T['meta'] = [
+			'config_file_path' => $config_file_path,
+		];
+
 		$config = $this->validateConfigVars($config_file_path);
 
 		

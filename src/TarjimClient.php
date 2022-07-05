@@ -33,10 +33,6 @@ class TarjimClient extends Tarjim {
 	 */
   public function setTranslations($language) {
 		global $_T;
-		$_T['meta'] = [
-			'default_namespace' => $this->default_namespace,
-			'config_file_path' => $this->config_file_path,
-		];
 
     ## Set translation keys
 		$_T = $this->getTranslations();
