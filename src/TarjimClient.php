@@ -188,6 +188,13 @@ class TarjimClient extends Tarjim {
 	/**
 	 *
 	 */
+	public function upsertKeys($data, $namespace = '') {
+		return $this->TarjimApiCaller->upsert($data, $namespace);
+	}
+
+	/**
+	 *
+	 */
 	public function searchKeys($search_keyword, $namespace = '') {
 		return $this->TarjimApiCaller->searchKeys($search_keyword, $namespace);
 	}
