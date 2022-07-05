@@ -168,7 +168,7 @@ class TarjimClient extends Tarjim {
 	 *
 	 */
 	public function softDeleteKeys($keys, $namespace = '') {
-		return $this->TarjimApiCaller->softDeleteKeys($namespace, $keys);
+		return $this->TarjimApiCaller->softDeleteKeys($keys, $namespace);
 	}
 
 	/**
