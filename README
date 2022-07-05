@@ -1,4 +1,7 @@
 1. clone tarjim_clients into vendors 
+
+
+DEV
 ```
 cd vendors
 git submodule add git@bitbucket.org:joylab/tarjim_clients.git
