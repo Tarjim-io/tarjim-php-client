@@ -133,7 +133,7 @@ class TarjimApiCaller extends Tarjim {
 	/**
 	 *
 	 */
-	public function searchByKey($key, $namespace) {
+	public function searchKeys($key, $namespace) {
 		set_error_handler('tarjimErrorHandler');
 
 		$endpoint = '/api/v1/keys/search-for-keys';	
