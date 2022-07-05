@@ -40,7 +40,7 @@ class TarjimApiCaller extends Tarjim {
 	/**
 	 *
 	 */
-	public function uploadImage($key, $image_file, $namespace, $language) {
+	public function uploadImage($key, $image_file, $language, $namespace) {
 		set_error_handler('tarjimErrorHandler');
 		$endpoint = '/api/v1/uploads/image';
 

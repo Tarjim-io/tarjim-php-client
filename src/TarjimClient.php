@@ -160,8 +160,8 @@ class TarjimClient extends Tarjim {
 	/**
 	 * Upload image to tarjim.io
 	 */
-	public function uploadImage($key, $image_file, $namespace = '', $language = '') {
-		return $this->TarjimApiCaller->uploadImage($key, $image_file, $namespace, $language);
+	public function uploadImage($key, $image_file, $language = '', $namespace = '') {
+		return $this->TarjimApiCaller->uploadImage($key, $image_file, $language, $namespace);
 	}
 	
 	/**
