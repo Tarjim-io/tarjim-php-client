@@ -152,6 +152,14 @@ class TarjimApiCaller extends Tarjim {
 		$result = $this->doCurlCall($endpoint, 'POST', $post_params);
 		restore_error_handler();
 		return $result;
-	
+	}
+
+	/**
+	 *
+	 */
+	public function getActivelanguages() {
+		$endpoint = '/api/v1/projects/getActivelanguages/';
+		$result = $this->doCurlCall($endpoint, 'GET', ['apikey' => $this->apikey]); 
+		return $result;
 	}
 }
