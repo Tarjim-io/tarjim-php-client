@@ -14,7 +14,7 @@ $default_namespace = '';
 ## Optional
 $additional_namespaces = [];
 ## curl timeout for update cache api calls
-$updpate_cache_timeout = 30;
+$update_cache_timeout = 30;
 ```
 3. create tarjim cache and log files in the dir specified above
 ```
