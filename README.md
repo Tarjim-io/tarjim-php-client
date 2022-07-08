@@ -30,6 +30,16 @@ chmod 777 CONFIG_FILE;
 
 
 ## Usage
+
+### Init
+```
+use Joylab\TarjimPhpClient\TarjimClient;
+
+$TarjimClient = new TarjimClient(FULL_PATH_TO_CONFIG_FILE.CONFIG_FILE_NAME_WITH_EXTENSION);
+$language = 'en';
+$TarjimClient->setTranslations($language);
+```
+
 ### _T()
 
 * For page titles add config = ['is_page_title' => true];
