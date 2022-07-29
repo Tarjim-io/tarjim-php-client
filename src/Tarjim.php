@@ -44,7 +44,7 @@ class Tarjim {
 		## Set cache files 
 		$this->cache_backup_file = $this->cache_dir.'/translations_backup.json';
 		$this->cache_file = $this->cache_dir.'/translations.json';
-		$this->sanitized_html_cache_file = $this->cache_dir.'sanitized_html.json';
+		$this->sanitized_html_cache_file = $this->cache_dir.'/sanitized_html.json';
 
 		## Set log files
 		$this->errors_file = $this->logs_dir.'/errors.log';
