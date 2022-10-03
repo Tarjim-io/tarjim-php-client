@@ -94,6 +94,8 @@ function _T($key, $config = [], $debug = false) {
 function _TD($key, $config = []) {
 	global $_T;
 	$namespace = $_T['meta']['default_namespace'];
+	$original_active_language = $_T['meta']['active_language'];
+	$Tarjim = new TarjimClient($_T['meta']['config_file_path']);
 
 	if (isset($config['namespace'])) {
 		$namespace = $config['namespace'];
@@ -112,7 +114,8 @@ function _TD($key, $config = []) {
 			foreach ($namespace_translations as $language => $language_translations) {
 				$dataset[$namespace][$language] = '';
 				if (isset($language_translations[$key])) {
-					$sanitized_value = sanitizeResult($key, $language_translations[$key]['value'], $language);
+					$Tarjim->setActiveLanguage($language);
+					$sanitized_value = sanitizeResult($key, $language_translations[$key]['value']);
 					$dataset[$namespace][$language] = $sanitized_value;
 				}
 			}
@@ -123,7 +126,8 @@ function _TD($key, $config = []) {
 		foreach ($namespace_translations as $language => $language_translations) {
 			$dataset[$language] = '';
 			if (isset($language_translations[$key])) {
-				$sanitized_value = sanitizeResult($key, $language_translations[$key]['value'], $language);
+				$Tarjim->setActiveLanguage($language);
+				$sanitized_value = sanitizeResult($key, $language_translations[$key]['value']);
 				$dataset[$language] = $sanitized_value;
 			}
 		}
@@ -391,7 +395,7 @@ function assignTarjimId($id, $value) {
  * Remove <script> tags from translation value
  * Prevent js injection
  */
-function sanitizeResult($key, $result, $language = null) {
+function sanitizeResult($key, $result) {
   global $_T;
   $unacceptable_tags = ['script'];
   $unacceptable_attribute_values = [
@@ -406,17 +410,12 @@ function sanitizeResult($key, $result, $language = null) {
     $cache_data = json_decode($cache_data, true);
     $cache_results_checksum = $cache_data['meta']['results_checksum'];
 
-    ## Get active language
-		if (!empty($language)) {
-			$active_language = $language;
+		## Get active language
+		if (isset($_T['meta']) && isset($_T['meta']['active_language'])) {
+			$active_language = $_T['meta']['active_language'];
 		}
-		else { 
-			if (isset($_T['meta']) && isset($_T['meta']['active_language'])) {
-				$active_language = $_T['meta']['active_language'];
-			}
-			elseif (isset($_SESSION['Config']['language'])) {
-				$active_language = $_SESSION['Config']['language'];
-			}
+		elseif (isset($_SESSION['Config']['language'])) {
+			$active_language = $_SESSION['Config']['language'];
 		}
 
     if (file_exists($Tarjim->sanitized_html_cache_file) && filesize($Tarjim->sanitized_html_cache_file) && isset($active_language)) {
