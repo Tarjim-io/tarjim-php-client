@@ -132,6 +132,8 @@ function _TD($key, $config = []) {
 			}
 		}
 	}
+
+	$Tarjim->setActiveLanguage($original_active_language);
 	return $dataset;
 }
 
