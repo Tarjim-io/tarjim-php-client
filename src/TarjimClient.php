@@ -35,12 +35,14 @@ class TarjimClient extends Tarjim {
 		global $_T;
 
     ## Set translation keys
-		$_T = $this->getTranslations();
+		if (empty($_T['results'])) {
+			$_T = $this->getTranslations();
 
-		## for Cakex view translation (non-json encoded)
-		$_T['results'] = $_T['results'];
-		$_T['meta']['default_namespace'] = $this->default_namespace;
-		$_T['meta']['config_file_path'] = $this->config_file_path;
+			## for Cakex view translation (non-json encoded)
+			$_T['results'] = $_T['results'];
+			$_T['meta']['default_namespace'] = $this->default_namespace;
+			$_T['meta']['config_file_path'] = $this->config_file_path;
+		}
 		$this->setActiveLanguage($language);
   }
 
