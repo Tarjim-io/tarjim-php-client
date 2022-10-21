@@ -202,6 +202,154 @@ function _TM($key, $attributes=[]) {
 }
 
 /**
+ * Format numbers/prices
+ */
+function _TF($value, $type = null, $config = []) {
+	if (empty($type)) {
+		$bt = debug_backtrace();
+		$caller = array_shift($bt);
+		die('_TF requires "type" of "price", "phone" '.$caller['file'].' on line '.$caller['line']); 
+	}
+
+	$language = detectLanguage();
+
+	switch ($type) {
+		case 'price':
+			return _TPrice($value, $language, $config);	
+		case 'phone':
+			return _TPhone($value, $config);
+		case 'datetime':
+			$config['show_time'] = true;
+			return _TDateTime($value, $language, $config);
+		case 'date':
+			return _TDateTime($value, $language, $config);
+		default:
+			$bt = debug_backtrace();
+			$caller = array_shift($bt);
+			die('Received unknown type "'.$type.'" '.$caller['file'].' on line '.$caller['line']);
+	}
+}
+
+/**
+ *
+ */
+function _TPrice($value, $language, $config) {
+	if (!is_numeric($value)) {
+		if (preg_match('/,/', $value)) {
+			$stripped_value = str_replace(',', '', $value);
+			if (!is_numeric($stripped_value)) {
+				return $value;
+			}
+			else {
+				$value = $stripped_value;
+			}
+		}
+	}
+	
+	$currency_symbol = '';
+	$decimal_places = 0;
+	$space_char = '&nbsp;';
+	if (!empty($config)) {
+		extract($config);
+//		if (!empty($config['currency_symbol'])) {
+//			$currency_symbol = $config['currency_symbol'];
+//		}
+//		if (!empty($config['decimal_places'])) {
+//			$decimal_places = $config['decimal_places'];
+//		}
+	}
+
+	if ('fr' == $language) {
+		return trim(number_format($value, $decimal_places, ',', $space_char).$space_char.$currency_symbol);
+	}
+
+	if ('en' == $language) {
+		return $currency_symbol.number_format($value, $decimal_places, '.', ',');
+	}	
+}
+
+/**
+ * for regex explanation: https://stackoverflow.com/questions/4708248/formatting-phone-numbers-in-php
+ */
+function _TPhone($value, $config) {
+	$show_intl_code = false;
+	$intl_code = '';
+	if (!empty($config)) {
+		extract($config);
+	}
+
+	$format = '($1) $2-$3';
+	if ($show_intl_code && !empty($intl_code)) {
+		$format = $intl_code.' '.$format;
+	}
+
+	return preg_replace('~.*(\d{3})[^\d]{0,7}(\d{3})[^\d]{0,7}(\d{4}).*~', $format, $value);
+}
+
+/**
+ *
+ */
+function _TDateTime($value, $language, $config) {
+	$english_days = array('Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday');
+	$french_days = array('lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi', 'dimanche');
+
+	$english_months = array('January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December');
+	$french_months = array('janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre');
+
+	$date_time_separator = ' at ';
+	if ('fr' == $language) {
+		$date_time_separator = ' à ';
+	}
+	
+	$show_time = false;
+	$uppercase_date = true;
+	if ('fr' == $language) {
+		$uppercase_date = false;
+	}
+	if (!empty($config)) {
+		extract($config);
+	}
+	
+	$value = strtotime($value);
+	$date = date("j F Y", $value);
+
+	$formatted_datetime = $date;
+	if ('fr' == $language) {
+		$formatted_datetime = str_replace($english_months, $french_months, $formatted_datetime);
+		$formatted_datetime = str_replace($english_days, $french_days, $formatted_datetime);
+	}
+
+	if ($uppercase_date) {
+		$formatted_datetime = ucwords($formatted_datetime);
+	}
+	else {
+		$formatted_datetime = strtolower($formatted_datetime);
+	}
+
+	if ($show_time) {
+		$formatted_datetime = $formatted_datetime.$date_time_separator._TTime($value, $config);	
+	}
+
+	return $formatted_datetime;
+}
+
+/**
+ *
+ */
+function _TTime($value, $config) {
+	$hour_minute_separator = ' h ';
+	if (!empty($config)) {
+		extract($config);
+	}
+
+	$hour = date("g", $value);
+	$minute = date("i", $value);
+	
+	$formatted_time = $hour.$hour_minute_separator.$minute;
+	return $formatted_time;
+}
+
+/**
  * Used for meta tags and site description
  **/
 function _TSEO($key, $config = []) {
@@ -412,13 +560,13 @@ function sanitizeResult($key, $result) {
     $cache_data = json_decode($cache_data, true);
     $cache_results_checksum = $cache_data['meta']['results_checksum'];
 
-		## Get active language
-		if (isset($_T['meta']) && isset($_T['meta']['active_language'])) {
-			$active_language = $_T['meta']['active_language'];
-		}
-		elseif (isset($_SESSION['Config']['language'])) {
-			$active_language = $_SESSION['Config']['language'];
-		}
+    ## Get active language
+    if (isset($_T['meta']) && isset($_T['meta']['active_language'])) {
+      $active_language = $_T['meta']['active_language'];
+    }
+    elseif (isset($_SESSION['Config']['language'])) {
+      $active_language = $_SESSION['Config']['language'];
+    }
 
     if (file_exists($Tarjim->sanitized_html_cache_file) && filesize($Tarjim->sanitized_html_cache_file) && isset($active_language)) {
       $sanitized_html_cache_file = $Tarjim->sanitized_html_cache_file;
@@ -535,6 +683,23 @@ function injectValuesIntoTranslation($translation_string, $mappings) {
   }
 
   return $translation_string;
+}
+
+/**
+ *
+ */
+function detectLanguage() {
+	global $_T;
+	$Tarjim = new TarjimClient($_T['meta']['config_file_path']);
+	$active_language = $_T['meta']['active_language'];
+
+	if (in_array($active_language, $Tarjim->french_language_codes)) {
+		return 'fr';
+	}
+
+	if (in_array($active_language, $Tarjim->english_language_codes)) {
+		return 'en';
+	}
 }
 
 
