@@ -338,14 +338,21 @@ function _TDateTime($value, $language, $config) {
  */
 function _TTime($value, $config) {
 	$hour_minute_separator = ' h ';
+	$time_format = '24';
 	if (!empty($config)) {
 		extract($config);
 	}
 
-	$hour = date("g", $value);
+	$hour = date("H", $value);
 	$minute = date("i", $value);
+	$period = '';
+
+	if ('12' == $time_format) {
+		$hour = date('h', $value);
+		$period = ' '.date('a', $value);
+	}
 	
-	$formatted_time = $hour.$hour_minute_separator.$minute;
+	$formatted_time = $hour.$hour_minute_separator.$minute.$period;
 	return $formatted_time;
 }
 
