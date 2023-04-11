@@ -6,7 +6,7 @@ namespace Joylab\TarjimPhpClient;
  */
 class Tarjim {
 
-	//	public $apikey, $tarjim_base_url, $project_id, $default_namespace, $additional_namespaces, $cache_dir, $logs_dir, $namespaces, $cache_backup_file, $cache_file, $sanitized_html_cache_file, $errors_file, $update_cache_log_file;
+	//	public $apikey, $tarjim_base_url, $project_id, $default_namespace, $additional_namespaces, $cache_dir, $logs_dir, $namespaces, $cache_backup_file, $cache_file, $sanitized_html_cache_file, $errors_file, $update_cache_log_file, $config_file_path, $get_latest_from_tarjim_timeout, $TarjimApiCaller;
 
 	public $french_language_codes = [
 		'fr',
@@ -117,7 +117,6 @@ class Tarjim {
 		$this->errors_file = $this->logs_dir.'/errors.log';
 		$this->update_cache_log_file = $this->logs_dir.'/update_cache.log';
 
-	
 	}
 
 	/**
@@ -279,7 +278,7 @@ class Tarjim {
 		}
 
 		$decoded = json_decode($response, true);
-		if ('fail' == $decoded['status']) {
+		if (empty($decoded) || !isset($decoded['status']) || 'fail' == $decoded['status']) {
 			$this->writeToFile($this->errors_file, date('Y-m-d H:i:s').' Tarjim Error'.__LINE__.' endpoint: '.$api_endpoint.PHP_EOL.'tarjim response: ' . json_encode($decoded).PHP_EOL, FILE_APPEND);
 			$error_details = $decoded['result']['error']['message'];
 			$this->reportErrorToApi('api_error', $error_details);
