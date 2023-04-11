@@ -280,8 +280,11 @@ class Tarjim {
 		$decoded = json_decode($response, true);
 		if (empty($decoded) || !isset($decoded['status']) || 'fail' == $decoded['status']) {
 			$this->writeToFile($this->errors_file, date('Y-m-d H:i:s').' Tarjim Error'.__LINE__.' endpoint: '.$api_endpoint.PHP_EOL.'tarjim response: ' . json_encode($decoded).PHP_EOL, FILE_APPEND);
-			$error_details = $decoded['result']['error']['message'];
-			$this->reportErrorToApi('api_error', $error_details);
+
+			if (!empty($decoded) && is_array($decoded) && isset($decoded['result']['error']['message'])) {
+				$error_details = $decoded['result']['error']['message'];
+				$this->reportErrorToApi('api_error', $error_details);
+			}
 
 			return ['status' => 'fail'];
 		}
