@@ -13,8 +13,15 @@ $default_namespace = '';
 
 ## Optional
 $additional_namespaces = [];
+
 ## curl timeout for update cache api calls
 $update_cache_timeout = 30;
+
+## key_case 
+## defaults to 'lower'
+## 'lower' => converts all keys from tarjim and keys passed to _T() functions to lowercase 
+## 'original' => preserves the keys' cases
+$key_case = 'lower';
 ```
 3. create tarjim cache and log files in the dir specified above
 ```

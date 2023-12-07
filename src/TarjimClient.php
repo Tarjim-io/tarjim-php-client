@@ -42,6 +42,7 @@ class TarjimClient extends Tarjim {
 			$_T['results'] = $_T['results'];
 			$_T['meta']['default_namespace'] = $this->default_namespace;
 			$_T['meta']['config_file_path'] = $this->config_file_path;
+			$_T['meta']['key_case'] = $this->key_case;
 		}
 		$this->setActiveLanguage($language);
   }

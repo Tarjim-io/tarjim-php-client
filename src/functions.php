@@ -103,7 +103,19 @@ function _TD($key, $config = []) {
 
 	$dataset = [];
 	$original_key = $key;
-	$key = strtolower($key);
+	$key_case = $_T['meta']['key_case'];
+	switch ($key_case) {
+			case 'lower':
+				$key = strtolower($original_key);
+				break;
+			case 'original':
+			case 'preserve':
+				$key = $original_key;
+				break;
+			default:
+				$key = strtolower($original_key);
+				break;
+	}
 
 	$translations = $_T['results'];
 	if ('all_namespaces' == $namespace) {
@@ -487,9 +499,22 @@ function getTarjimValue($key, $namespace = '') {
 		$namespace = $_T['meta']['default_namespace'];
 	}
 
-	$active_language = $_T['meta']['active_language'];
 	$original_key = $key;
-	$key = strtolower($key);
+	$key_case = $_T['meta']['key_case'];
+	switch ($key_case) {
+			case 'lower':
+				$key = strtolower($original_key);
+				break;
+			case 'original':
+			case 'preserve':
+				$key = $original_key;
+				break;
+			default:
+				$key = strtolower($original_key);
+				break;
+	}
+
+	$active_language = $_T['meta']['active_language'];
 	$assign_tarjim_id = false;
 	$tarjim_id = '';
 	$full_value = [];

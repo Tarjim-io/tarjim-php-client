@@ -23,10 +23,25 @@ class TarjimApiCaller extends Tarjim {
 	public function getLatestFromTarjim() {
 		set_error_handler('tarjimErrorHandler');
 		$endpoint = '/api/v1/translationkeys/jsonByNameSpaces';
+		
+		switch ($this->key_case) {
+			case 'lower':
+				$key_case = ['key_case_to_lower' => true];
+				break;
+			case 'original':
+			case 'preserve':
+				$key_case = ['key_case_preserve' => true];
+				break;
+			default:
+				$key_case = ['key_case_to_lower' => true];
+				break;
+		}
+
 		$post_params = [
 			'project_id' => $this->project_id,
 			'apikey' => $this->apikey,	
 			'namespaces' => $this->namespaces,
+			'key_case' => $key_case,
 		];
 
 		$timeout = $this->get_latest_from_tarjim_timeout;

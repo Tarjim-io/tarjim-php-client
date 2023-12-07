@@ -6,7 +6,7 @@ namespace Joylab\TarjimPhpClient;
  */
 class Tarjim {
 
-	//	public $apikey, $tarjim_base_url, $project_id, $default_namespace, $additional_namespaces, $cache_dir, $logs_dir, $namespaces, $cache_backup_file, $cache_file, $sanitized_html_cache_file, $errors_file, $update_cache_log_file, $config_file_path, $get_latest_from_tarjim_timeout, $TarjimApiCaller;
+		public $apikey, $tarjim_base_url, $project_id, $default_namespace, $additional_namespaces, $cache_dir, $logs_dir, $namespaces, $cache_backup_file, $cache_file, $sanitized_html_cache_file, $errors_file, $update_cache_log_file, $config_file_path, $get_latest_from_tarjim_timeout, $TarjimApiCaller, $key_case;
 
 	public $french_language_codes = [
 		'fr',
@@ -99,6 +99,7 @@ class Tarjim {
 		$this->cache_dir = $config['cache_dir'];
 		$this->logs_dir = $config['logs_dir'];
 		$this->get_latest_from_tarjim_timeout = $config['get_latest_from_tarjim_timeout'];
+		$this->key_case = $config['key_case'];
 		
 		if (empty($this->additional_namespaces) || !is_array($this->additional_namespaces)) {
 			$this->additional_namespaces = [];
@@ -176,6 +177,13 @@ class Tarjim {
 		}
 		else {
 			$config['tarjim_base_url'] = 'https://app.tarjim.io';
+		}
+
+		if (isset($key_case)) {
+			$config['key_case'] = $key_case;
+		}
+		else {
+			$config['key_case'] = 'lower';
 		}
 
 		return $config;
