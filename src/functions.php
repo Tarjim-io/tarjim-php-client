@@ -711,7 +711,10 @@ function injectValuesIntoTranslation($translation_string, $mappings) {
   foreach ($matches[0] as $match) {
     $match_stripped = str_replace('%', '', $match);
     $regex = '/'.$match.'/';
-    $translation_string = preg_replace($regex, $mappings[$match_stripped], $translation_string);
+		$translation_string = preg_replace_callback($regex, function ($matches) use($match_stripped, $mappings) {
+			return $mappings[$match_stripped];
+		}, $translation_string);
+		//$translation_string = preg_replace($regex, $mappings[$match_stripped], $translation_string);
   }
 
   return $translation_string;
