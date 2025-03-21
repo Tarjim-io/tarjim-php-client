@@ -220,14 +220,14 @@ function _TF($value, $type = null, $config = []) {
 	if (empty($type)) {
 		$bt = debug_backtrace();
 		$caller = array_shift($bt);
-		die('_TF requires "type" of "price", "phone" '.$caller['file'].' on line '.$caller['line']); 
+		die('_TF requires "type" of "price", "phone" '.$caller['file'].' on line '.$caller['line']);
 	}
 
 	$language = detectLanguage();
 
 	switch ($type) {
 		case 'price':
-			return _TPrice($value, $language, $config);	
+			return _TPrice($value, $language, $config);
 		case 'phone':
 			return _TPhone($value, $config);
 		case 'datetime':
@@ -257,7 +257,7 @@ function _TPrice($value, $language, $config) {
 			}
 		}
 	}
-	
+
 	$currency_symbol = '';
 	$decimal_places = 0;
 	$space_char = '&nbsp;';
@@ -277,7 +277,7 @@ function _TPrice($value, $language, $config) {
 
 	if ('en' == $language) {
 		return $currency_symbol.number_format($value, $decimal_places, '.', ',');
-	}	
+	}
 }
 
 /**
@@ -312,7 +312,7 @@ function _TDateTime($value, $language, $config) {
 	if ('fr' == $language) {
 		$date_time_separator = ' à ';
 	}
-	
+
 	$show_time = false;
 	$uppercase_date = true;
 	if ('fr' == $language) {
@@ -321,7 +321,7 @@ function _TDateTime($value, $language, $config) {
 	if (!empty($config)) {
 		extract($config);
 	}
-	
+
 	$value = strtotime($value);
 	$date = date("j F Y", $value);
 
@@ -339,7 +339,7 @@ function _TDateTime($value, $language, $config) {
 	}
 
 	if ($show_time) {
-		$formatted_datetime = $formatted_datetime.$date_time_separator._TTime($value, $config);	
+		$formatted_datetime = $formatted_datetime.$date_time_separator._TTime($value, $config);
 	}
 
 	return $formatted_datetime;
@@ -363,7 +363,7 @@ function _TTime($value, $config) {
 		$hour = date('h', $value);
 		$period = ' '.date('a', $value);
 	}
-	
+
 	$formatted_time = $hour.$hour_minute_separator.$minute.$period;
 	return $formatted_time;
 }
@@ -621,7 +621,10 @@ function sanitizeResult($key, $result) {
     }
 
     $dom = new DOMDocument;
-    $dom->loadHTML('<?xml encoding="utf-8" ?>'.$result, LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
+
+		## Wrap resut in <div> to stop saveHTML() from adding <p> wrapper
+		$wrapped_result = '<div>'.$result.'</div>';
+    $dom->loadHTML('<?xml encoding="utf-8" ?>'.$wrapped_result, LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
 
     ## Remove unawanted nodes
     foreach ($unacceptable_tags as $tag) {
@@ -653,10 +656,14 @@ function sanitizeResult($key, $result) {
       }
     }
 
-    $sanitized = $dom->saveHTML($dom);
-    $stripped = str_replace(['<p>', '</p>'], '', $sanitized);
-    cacheSanitizedHTML($key, $stripped, $cache_results_checksum);
-    return $stripped;
+		## Get contents of first <div> wrapper (added above) and remove wrapper <div> by appending its contents to $sanitized
+		$body = $dom->getElementsByTagName('div')->item(0);
+		$sanitized = '';
+		foreach ($body->childNodes as $node) {
+				$sanitized .= $dom->saveHTML($node);
+		}
+    cacheSanitizedHTML($key, $sanitized, $cache_results_checksum);
+    return $sanitized;
   }
 
   return $result;
