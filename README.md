@@ -3,38 +3,38 @@
 ## Setup
 1. run composer require joylab/tarjim-php-client
 2. create php tarjim config file in your project containing
-```
-<?php
-## Required
-$project_id = '';
-$cache_dir = full path to tarjim cache dir;
-$logs_dir = full path to tarjim logs dir;
-$apikey = '';
-$default_namespace = '';
+    ```
+    <?php
+    ## Required
+    $project_id = '';
+    $cache_dir = full path to tarjim cache dir;
+    $logs_dir = full path to tarjim logs dir;
+    $apikey = '';
+    $default_namespace = '';
 
-## Optional
-$additional_namespaces = [];
+    ## Optional
+    $additional_namespaces = [];
 
-## curl timeout for update cache api calls
-$update_cache_timeout = 30;
+    ## curl timeout for update cache api calls
+    $update_cache_timeout = 30;
 
-## key_case 
-## defaults to 'lower'
-## 'lower' => converts all keys from tarjim and keys passed to _T() functions to lowercase 
-## 'original' => preserves the keys' cases
-$key_case = 'lower';
-```
+    ## key_case
+    ## defaults to 'lower'
+    ## 'lower' => converts all keys from tarjim and keys passed to _T() functions to lowercase
+    ## 'original' => preserves the keys' cases
+    $key_case = 'lower';
+    ```
 3. create tarjim cache and log files in the dir specified above
-```
-cd CACHE_DIR; touch translations.json translations_backup.json sanitized_html.json;
-cd LOGS_DIR; touch errors.log update_cache.log; 
-```
+    ```
+    cd CACHE_DIR; touch translations.json translations_backup.json sanitized_html.json;
+    cd LOGS_DIR; touch errors.log update_cache.log;
+    ```
 4. give permissions for cache and logs and config file
-```
-chmod -R 777 CACHE_DIR;
-chmod -R 777 LOGS_DIR;
-chmod 777 CONFIG_FILE; 
-```
+    ```
+    chmod -R 777 CACHE_DIR;
+    chmod -R 777 LOGS_DIR;
+    chmod 777 CONFIG_FILE;
+    ```
 
 
 ## Usage
@@ -51,7 +51,7 @@ $TarjimClient->setTranslations($language);
 ### _T()
 
 * For page titles add config = ['is_page_title' => true];
-ex: 
+ex:
 ```
 <title><?=_T($title_for_layout, ['is_page_title' => true])?> | Panda7</title>
 ```
@@ -66,7 +66,7 @@ skip_assign_tid can also be used for page titles
 
 ### To use variables in translation value
 * In tarjim.io add the variables you want as %%variable_name%%
-* In view pass the mapping in config 
+* In view pass the mapping in config
 ```
 _T($key, [
 	'mappings' => [
@@ -89,9 +89,9 @@ $attributes = [
 
 renders <img src='src' class='img-class-name' width='100px' />
 ```
-* **Important note for media attributes**: 
+* **Important note for media attributes**:
 attributes received from tarjim.io will overwrite attributes received from the function call if same attribute exists in both
-so in previous example if this key has attributes: {class: 'class-from-tarjim', height:'200px'} __TM will return 
+so in previous example if this key has attributes: {class: 'class-from-tarjim', height:'200px'} __TM will return
 ```
 <img src='src' class='class-from-tarjim' width='100px' height='200px'/>
 ```
@@ -99,7 +99,7 @@ notice that width and height are both added
 
 ### Using tarjim for datasets
 * _TD($key, $config = []);
-* returns values for all languages for a key ex: 
+* returns values for all languages for a key ex:
 ```
 [
 	'en' => 'en values,
