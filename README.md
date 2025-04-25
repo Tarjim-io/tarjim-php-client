@@ -102,7 +102,7 @@ notice that width and height are both added
 * returns values for all languages for a key ex:
 ```
 [
-	'en' => 'en values,
+	'en' => 'en value',
 	'fr' => 'fr value'
 ]
 ```
@@ -110,7 +110,7 @@ notice that width and height are both added
 ```
 [
 	'namespace 1' => [
-		'en' => 'en values,
+		'en' => 'en value',
 		'fr' => 'fr value'
 	],
 	'namespace 2' => [
