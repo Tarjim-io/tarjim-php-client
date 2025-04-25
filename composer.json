@@ -1,6 +1,6 @@
 {
     "name": "joylab/tarjim-php-client",
-    "description": "PHP client to to use tarjim translation functions",
+    "description": "PHP client to use tarjim translation functions",
     "type": "library",
     "autoload": {
         "psr-4": {
