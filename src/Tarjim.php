@@ -236,15 +236,19 @@ class Tarjim
 		return $result;
 	}
 
-	public function getGitTagVersionFromFile()
-	{
-		$versionFile = __DIR__ . '/../VERSION'; // Adjust path if needed
-		if (file_exists($versionFile)) {
-			return trim(file_get_contents($versionFile));
-		}
+public function getGitTagVersionFromFile()
+{
+    $versionFile = __DIR__ . '/../VERSION';
 
-		return 'unknown';
-	}
+    // Try reading it first
+    if (file_exists($versionFile)) {
+        return trim(file_get_contents($versionFile));
+    }
+
+    // Fallback
+    return 'unknown';
+}
+
 
 	/**
 	 *
@@ -253,7 +257,7 @@ class Tarjim
 	{
 		$api_endpoint = $this->tarjim_base_url . '/' . $endpoint;
 
-		$data['package_version'] = $this->getPackageVersion();
+		$data['package_version'] = $this->getGitTagVersionFromFile();
 
 		$ch = curl_init();
 		if ('GET' == $method) {

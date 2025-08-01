@@ -18,13 +18,5 @@
         "branch-alias": {
             "dev-master": "1.1.x-dev"
         }
-    },
-    "scripts": {
-        "post-install-cmd": [
-            "@php write-version.php"
-        ],
-        "post-update-cmd": [
-            "@php write-version.php"
-        ]
     }
 }
