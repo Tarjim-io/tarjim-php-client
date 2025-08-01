@@ -10,7 +10,7 @@ if [ -z "$version" ]; then
 fi
 
 # Update VERSION file
-php write-version.php
+php write-version.php "$version"
 
 # Commit updated VERSION file
 git add .

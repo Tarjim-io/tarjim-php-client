@@ -1,18 +1,26 @@
 #!/usr/bin/env php
 <?php
 
-// Exit on any error
-try {
-    // Try to get the latest Git tag (e.g., v1.3.0)
-    $version = trim(shell_exec('git describe --tags --abbrev=0 2>&1'));
+// usage: php write-version.php v1.3.0
 
-    if (!$version || str_starts_with($version, 'fatal')) {
-        $version = 'unknown';
-    }
+$logFile = __DIR__ . '/version-script-debug.log';
 
-    file_put_contents(__DIR__ . '/VERSION', $version);
-    echo "✔️ Version written to VERSION file: $version\n";
-} catch (Exception $e) {
-    echo "❌ Failed to write version file: " . $e->getMessage() . "\n";
+// Get version from command-line argument
+$version = $argv[1] ?? null;
+
+if (!$version) {
+    $msg = "❌ No version provided. Usage: php write-version.php v1.3.0";
+    echo $msg . PHP_EOL;
+    file_put_contents($logFile, date('Y-m-d H:i:s') . " $msg\n", FILE_APPEND);
     exit(1);
 }
+
+// Optional: clean up "v" prefix if you only want "1.3.0"
+$version = ltrim($version, 'v');
+
+// Write version to file
+file_put_contents(__DIR__ . '/VERSION', $version);
+
+// Log and confirm
+file_put_contents($logFile, date('Y-m-d H:i:s') . " VERSION set to $version\n", FILE_APPEND);
+echo "✔️ VERSION file written with: $version\n";
