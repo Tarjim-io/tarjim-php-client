@@ -1,12 +1,14 @@
-<?php 
+<?php
 
-namespace Joylab\TarjimPhpClient; 
+namespace Joylab\TarjimPhpClient;
+
 /**
  *
  */
-class Tarjim {
+class Tarjim
+{
 
-		public $apikey, $tarjim_base_url, $project_id, $default_namespace, $additional_namespaces, $cache_dir, $logs_dir, $namespaces, $cache_backup_file, $cache_file, $sanitized_html_cache_file, $errors_file, $update_cache_log_file, $config_file_path, $get_latest_from_tarjim_timeout, $TarjimApiCaller, $key_case;
+	public $apikey, $tarjim_base_url, $project_id, $default_namespace, $additional_namespaces, $cache_dir, $logs_dir, $namespaces, $cache_backup_file, $cache_file, $sanitized_html_cache_file, $errors_file, $update_cache_log_file, $config_file_path, $get_latest_from_tarjim_timeout, $TarjimApiCaller, $key_case;
 
 	public $french_language_codes = [
 		'fr',
@@ -78,7 +80,8 @@ class Tarjim {
 	/**
 	 *
 	 */
-	public function __construct($config_file_path) {
+	public function __construct($config_file_path)
+	{
 		global $_T;
 		if (!isset($_T['meta'])) {
 			$_T['meta'] = [
@@ -88,7 +91,7 @@ class Tarjim {
 
 		$config = $this->validateConfigVars($config_file_path);
 
-		
+
 		$this->config_file_path = $config_file_path;
 
 		$this->tarjim_base_url = $config['tarjim_base_url'];
@@ -100,38 +103,37 @@ class Tarjim {
 		$this->logs_dir = $config['logs_dir'];
 		$this->get_latest_from_tarjim_timeout = $config['get_latest_from_tarjim_timeout'];
 		$this->key_case = $config['key_case'];
-		
+
 		if (empty($this->additional_namespaces) || !is_array($this->additional_namespaces)) {
 			$this->additional_namespaces = [];
 		}
-		
+
 		## Set namespaces
 		$this->namespaces = $this->additional_namespaces;
 		array_unshift($this->namespaces, $this->default_namespace);
 
 		## Set cache files 
-		$this->cache_backup_file = $this->cache_dir.'/translations_backup.json';
-		$this->cache_file = $this->cache_dir.'/translations.json';
-		$this->sanitized_html_cache_file = $this->cache_dir.'/sanitized_html.json';
+		$this->cache_backup_file = $this->cache_dir . '/translations_backup.json';
+		$this->cache_file = $this->cache_dir . '/translations.json';
+		$this->sanitized_html_cache_file = $this->cache_dir . '/sanitized_html.json';
 
 		## Set log files
-		$this->errors_file = $this->logs_dir.'/errors.log';
-		$this->update_cache_log_file = $this->logs_dir.'/update_cache.log';
-
+		$this->errors_file = $this->logs_dir . '/errors.log';
+		$this->update_cache_log_file = $this->logs_dir . '/update_cache.log';
 	}
 
 	/**
 	 *
 	 */
-	private function validateConfigVars($config_file_path) {
+	private function validateConfigVars($config_file_path)
+	{
 		$config_file_ext = pathinfo($config_file_path, PATHINFO_EXTENSION);
 
 		if ('php' == $config_file_ext) {
 			require($config_file_path);
-		}
-		else if ('json' == $config_file_ext) {
+		} else if ('json' == $config_file_ext) {
 			$config_vars = json_decode(file_get_contents($config_file_path), true);
-			extract($config_vars);	
+			extract($config_vars);
 		}
 
 		if (!isset($project_id)) {
@@ -156,7 +158,7 @@ class Tarjim {
 
 		$get_latest_from_tarjim_timeout = 30;
 		if (isset($update_cache_timeout)) {
-			if(!is_numeric($update_cache_timeout)) {
+			if (!is_numeric($update_cache_timeout)) {
 				die('update_cache_timeout must be numeric');
 			}
 			$get_latest_from_tarjim_timeout = $update_cache_timeout;
@@ -174,15 +176,13 @@ class Tarjim {
 
 		if (isset($tarjim_base_url)) {
 			$config['tarjim_base_url'] = $tarjim_base_url;
-		}
-		else {
+		} else {
 			$config['tarjim_base_url'] = 'https://app.tarjim.io';
 		}
 
 		if (isset($key_case)) {
 			$config['key_case'] = $key_case;
-		}
-		else {
+		} else {
 			$config['key_case'] = 'lower';
 		}
 
@@ -192,23 +192,21 @@ class Tarjim {
 	/**
 	 *
 	 */
-	public function writeToFile($file, $content, $options = null) {
+	public function writeToFile($file, $content, $options = null)
+	{
 		if (file_exists($file)) {
 			if (is_writable($file)) {
 				if (!empty($options)) {
 					file_put_contents($file, $content, $options);
-				}
-				else {
+				} else {
 					file_put_contents($file, $content);
 				}
-			}
-			else {
-				$error_details = $file.' is not writable';
+			} else {
+				$error_details = $file . ' is not writable';
 				$this->reportErrorToApi('file_error', $error_details);
 			}
-		}
-		else {
-			$error_details = $file.' does not exist';
+		} else {
+			$error_details = $file . ' does not exist';
 			$this->reportErrorToApi('file_error', $error_details);
 		}
 	}
@@ -216,39 +214,51 @@ class Tarjim {
 	/**
 	 *
 	 */
-	public function reportErrorToApi($error_type, $error_details) {
+	public function reportErrorToApi($error_type, $error_details)
+	{
 		$endpoint = '/api/v1/report-client-error/';
 
 		if (php_sapi_name() != 'cli') {
-			$domain = $_SERVER['HTTP_HOST']; 
-		}
-		else {
+			$domain = $_SERVER['HTTP_HOST'];
+		} else {
 			$domain = 'cli';
 		}
 
 		$post_params = [
 			'domain' => $domain,
 			'project_id' => $this->project_id,
-			'apikey' => $this->apikey,	
+			'apikey' => $this->apikey,
 			'error_type' => $error_type,
 			'error_details' => $error_details,
 		];
 
-		$result = $this->doCurlCall($endpoint, 'POST', $post_params); 
+		$result = $this->doCurlCall($endpoint, 'POST', $post_params);
 		return $result;
+	}
+
+	public function getGitTagVersionFromFile()
+	{
+		$versionFile = __DIR__ . '/../VERSION'; // Adjust path if needed
+		if (file_exists($versionFile)) {
+			return trim(file_get_contents($versionFile));
+		}
+
+		return 'unknown';
 	}
 
 	/**
 	 *
 	 */
-	public function doCurlCall($endpoint, $method = null, $data = [], $timeout = null, $encode_post_params = true) {
-		$api_endpoint = $this->tarjim_base_url.'/'.$endpoint;
-		
+	public function doCurlCall($endpoint, $method = null, $data = [], $timeout = null, $encode_post_params = true)
+	{
+		$api_endpoint = $this->tarjim_base_url . '/' . $endpoint;
+
+		$data['package_version'] = $this->getPackageVersion();
+
 		$ch = curl_init();
 		if ('GET' == $method) {
-			$api_endpoint = $api_endpoint.'?'.http_build_query($data, '', '&');
-		}
-		else {
+			$api_endpoint = $api_endpoint . '?' . http_build_query($data, '', '&');
+		} else {
 			$data_encoded = $data;
 			if ($encode_post_params) {
 				$data_encoded = json_encode($data);
@@ -256,8 +266,7 @@ class Tarjim {
 
 			if ('POST' == $method) {
 				curl_setopt($ch, CURLOPT_POST, true);
-			}
-			else {
+			} else {
 				curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $method);
 			}
 
@@ -273,21 +282,22 @@ class Tarjim {
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 		curl_setopt($ch, CURLOPT_TIMEOUT, $timeout);
 		curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+
 		$response = curl_exec($ch);
 
 		if (curl_error($ch)) {
-			$this->writeToFile($this->errors_file, date('Y-m-d H:i:s').' Curl error line '.__LINE__.': ' . curl_error($ch).PHP_EOL, FILE_APPEND);
+			$this->writeToFile($this->errors_file, date('Y-m-d H:i:s') . ' Curl error line ' . __LINE__ . ': ' . curl_error($ch) . PHP_EOL, FILE_APPEND);
 			return ['status' => 'fail'];
 		}
 
 		if (empty($response)) {
-			$this->writeToFile($this->errors_file, date('Y-m-d H:i:s').' Empty response received '.__LINE__.PHP_EOL, FILE_APPEND);
+			$this->writeToFile($this->errors_file, date('Y-m-d H:i:s') . ' Empty response received ' . __LINE__ . PHP_EOL, FILE_APPEND);
 			return ['status' => 'fail'];
 		}
 
 		$decoded = json_decode($response, true);
 		if (empty($decoded) || !isset($decoded['status']) || 'fail' == $decoded['status']) {
-			$this->writeToFile($this->errors_file, date('Y-m-d H:i:s').' Tarjim Error'.__LINE__.' endpoint: '.$api_endpoint.PHP_EOL.'tarjim response: ' . json_encode($decoded).PHP_EOL, FILE_APPEND);
+			$this->writeToFile($this->errors_file, date('Y-m-d H:i:s') . ' Tarjim Error' . __LINE__ . ' endpoint: ' . $api_endpoint . PHP_EOL . 'tarjim response: ' . json_encode($decoded) . PHP_EOL, FILE_APPEND);
 
 			if (!empty($decoded) && is_array($decoded) && isset($decoded['result']['error']['message'])) {
 				$error_details = $decoded['result']['error']['message'];

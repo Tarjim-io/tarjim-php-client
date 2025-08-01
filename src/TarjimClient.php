@@ -73,7 +73,7 @@ class TarjimClient extends Tarjim
 				$this->updateCache($final);
 			}
 		} else {
-			$ttl_in_minutes = 15;
+			$ttl_in_minutes = 60;
 
 			$time_now = time();
 			$time_now_in_minutes = (int) ($time_now / 60);
@@ -112,6 +112,7 @@ class TarjimClient extends Tarjim
 					if ('fail' == $apiResults['status']) {
 						$cache_data = file_get_contents($this->cache_file);
 						$final = json_decode($cache_data, true);
+						touch($this->cache_file);
 					} else {
 						$final = $apiResults['result'];
 						$this->updateCache($final);
