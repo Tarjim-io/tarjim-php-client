@@ -21,10 +21,10 @@
     },
     "scripts": {
         "post-install-cmd": [
-            "./write-version.sh"
+            "@php write-version.php"
         ],
         "post-update-cmd": [
-            "./write-version.sh"
+            "@php write-version.php"
         ]
     }
 }
