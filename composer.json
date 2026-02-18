@@ -7,12 +7,10 @@
             "Joylab\\TarjimPhpClient\\": "src/"
         }
     },
-    "authors": [
-        {
-            "name": "mohmmadmerhie",
-            "email": "mhmd.merhie@gmail.com"
-        }
-    ],
+    "authors": [{
+        "name": "mohmmadmerhie",
+        "email": "mhmd.merhie@gmail.com"
+    }],
     "minimum-stability": "stable",
     "require": {},
     "license": "MIT",
