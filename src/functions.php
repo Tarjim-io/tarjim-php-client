@@ -93,9 +93,21 @@ function _T($key, $config = [], $debug = false) {
  */
 function _TD($key, $config = []) {
 	global $_T;
-	$namespace = $_T['meta']['default_namespace'];
-	$original_active_language = $_T['meta']['active_language'];
-	$Tarjim = new TarjimClient($_T['meta']['config_file_path']);
+
+	// Memoization cache
+  static $cache = [];
+  $namespace = isset($config['namespace']) ? $config['namespace'] : $_T['meta']['default_namespace'];
+  $cache_key = $namespace . ':' . $key;
+  if (isset($cache[$cache_key])) {
+      return $cache[$cache_key];
+  }
+
+  // Instantiate TarjimClient once, reuse it
+  static $Tarjim = null;
+  if ($Tarjim === null) {
+      $Tarjim = new TarjimClient($_T['meta']['config_file_path']);
+  }
+  $original_active_language = $_T['meta']['active_language'];
 
 	if (isset($config['namespace'])) {
 		$namespace = $config['namespace'];
@@ -146,6 +158,8 @@ function _TD($key, $config = []) {
 	}
 
 	$Tarjim->setActiveLanguage($original_active_language);
+	$cache[$cache_key] = $dataset;
+
 	return $dataset;
 }
 
